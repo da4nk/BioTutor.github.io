@@ -1,0 +1,87 @@
+{% extends "html/layout.html" %}
+{% load static %}
+{% block body %}
+
+    <div class="Jetbrains d-flex">
+        <nav class = "nav bg-body-tertiary">
+            <div class="bg-dark text-white p-3 vh-100">
+                <div class = "flex justify-content-between">
+                    <h1 class = "navbar-brand">BioTutor</h1>
+                    <h1 class="navbar-brand">Hi {{ request.user.username }}</h1>
+                        <a class = "navbar-brand" href="{% url 'Logout' %}">logout</a>
+                </div>
+                <ul class = "nav flex-column  mt-5 pt-5">
+                <li class ="nav-item mb-4">
+                <a class="navbar-brand" href="{% url 'index' %}">Home</a>
+                </li>
+                {% if is_tutor %}
+                <li class = "nav-item mb-5">
+                <a class="navbar-brand" href="#">Hours</a>
+                </li>{% endif %}
+                <li class = "nav-item mb-5">
+                <a class="navbar-brand" href="#">Profile</a>
+                </li>
+            </ul>
+            </div>
+        </nav>
+
+        {% if user.is_authenticated  %}
+        {% if is_student %}
+        <form id="confirm-tutor-form" action="{% url 'TutorSelection' %}" method="POST">
+          {% csrf_token %}
+
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">Available Tutors</h5>
+              <select class="form-select" aria-label="Default select example">
+                <option class = "p-5 mt-5" selected>Select Tutor</option>
+                {% for tutor in tutoring %}
+
+                <option value="1">{{ tutor.name }}</option>
+
+                {% endfor %}
+          
+              </select>
+              <a href="#" onclick="document.getElementById('confirm-tutor-form').submit();" class="p-4 btn btn-primary">Confirm Tutor</a>
+
+            </div>
+          </form>
+
+          </div>
+          {% endif %}
+        {% endif %}
+        <div class="d-flex flex-grow-1 ">
+            <div class="container text-center p-3">
+                {% if is_student %}
+                
+                {% for tutor in tutoring %}
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ tutor.name }}</h5> 
+                        {% if tutor.students.all %}
+                            <p class="card-text">
+                                Students: 
+                                {% for student in tutor.students.all %}
+                                {{ student.user.username }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        {% else %}
+                            <p class="card-text">No Students currently.</p>
+                        {% endif %}
+            
+                        {% if request.user in tutor.students.all %}
+                            <p class="card-text">You are assigned to this tutor.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            {% endif %}
+    </div>
+        <div class="container">
+            
+
+        </div>
+    </div>
+
+
+{% endblock %}
