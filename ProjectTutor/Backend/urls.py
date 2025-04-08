@@ -14,7 +14,6 @@ from .views import (
     IndexView,
     LoginView,
     TutorSelection
-    
 )
 
 
@@ -28,7 +27,7 @@ urlpatterns = [
 
     # API VIEWS 
     path('api-auth/', include('rest_framework.urls')),
-    path("auth", include(router.urls)),  # 👈 Make sure this is included
+    path("auth", include(router.urls)), 
 
     
 ]

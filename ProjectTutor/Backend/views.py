@@ -33,26 +33,29 @@ class IndexView(LoginRequiredMixin, TemplateView):
 class TutorSelection(LoginRequiredMixin, View):
     def get(self, request):
         tutors = Tutor.objects.all()
-        return render(request, 'html/index.html', {"tutors": tutors})  
+        return render(request, 'html/index.html', {"tutoring": tutors})
 
     def post(self, request):
         tutor_id = request.POST.get('tutor')  
-        student = Student.objects.all()
-        if not tutor_id:
-            return redirect('/') 
+        student_id = request.POST.get('user')
+
+        if not tutor_id or not student_id:
+            return redirect('/')
+
         try:
-            tutor = Tutor.objects.get(id=tutor_id) 
-        except Tutor.DoesNotExist:
-            return redirect('/') 
+            tutor = Tutor.objects.get(id=tutor_id)
+            student = Student.objects.get(id=student_id)
 
+            # Assign the tutor to the student (add to ManyToMany relationship)
+            student.assigned_tutors.add(tutor)
+            tutor.students.add(student)
 
- 
-        student.assigned_tutors.add(tutor)
-        student.save()
+            student.save()
+            tutor.save()
 
-        return redirect('/')
-    
-
+            return redirect('/')  # or wherever you want to redirect after assignment
+        except (Tutor.DoesNotExist, Student.DoesNotExist):
+            return redirect('/')  # handle errors, like tutor or student not found
 
 @method_decorator(never_cache, name='dispatch')
 class LoginView(LoginView):
